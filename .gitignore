@@ -1,0 +1,9 @@
+venv/
+cache/
+cache_bid/
+cache_narrativa/
+.env
+__pycache__/
+*.pyc
+snapshot_actual.csv
+log.txt
