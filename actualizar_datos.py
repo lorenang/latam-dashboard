@@ -4,7 +4,6 @@ from panel import obtener_panel_combinado
 from narrativa import generar_resumen_economico
 
 SNAPSHOT_ACTUAL = "snapshot_actual.csv"
-SNAPSHOT_ANTERIOR = "snapshot_anterior.csv"
 
 
 def detectar_cambios(panel_nuevo):
@@ -19,13 +18,11 @@ def detectar_cambios(panel_nuevo):
     )
 
     solo_nuevos = merge[merge["_merge"] == "left_only"]
-
-    # NUEVO: filtramos filas donde ambos valores son NaN (no es una revisión real)
     ambos_nan = merge["valor_nuevo"].isna() & merge["valor_anterior"].isna()
 
     revisiones = merge[
         (merge["_merge"] == "both") &
-        (~ambos_nan) &  # excluimos los casos de "ambos faltantes"
+        (~ambos_nan) &
         (merge["valor_nuevo"].round(2) != merge["valor_anterior"].round(2))
     ]
 
@@ -41,15 +38,13 @@ def detectar_cambios(panel_nuevo):
 
     return "\n".join(partes)
 
+
 if __name__ == "__main__":
     print("Actualizando panel de datos...")
     panel = obtener_panel_combinado()
 
     cambios = detectar_cambios(panel)
-    print("DEBUG - cambios detectados:", cambios)  # <-- agregá esta línea
 
-    # Guardamos el snapshot actual como "anterior" para la próxima corrida,
-    # y el actual queda como referencia
     panel.to_csv(SNAPSHOT_ACTUAL, index=False)
 
     print("Generando narrativa...")

@@ -6,7 +6,7 @@ from transformaciones import normalizar_a_variacion
 st.set_page_config(page_title="Panel Macro LatAm", layout="wide")
 
 st.title("📊 Panel Macroeconómico — América Latina")
-st.caption("Datos: Banco Mundial | Actualizado con IA generativa")
+st.caption("Datos: Banco Mundial · BID · CEPAL | Actualizado con IA generativa")
 
 
 # --- Funciones cacheadas (van ARRIBA, antes de usarlas) ---

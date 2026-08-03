@@ -43,15 +43,17 @@ def obtener_indicador_cepal(indicator_id, nombre_indicador, paises_iso3=None):
     registros_crudos = data["body"]["data"]
     dimensiones = data["body"]["dimensions"]
 
-    # Buscamos la dimensión de años por nombre, no por ID fijo
     dim_anios = next((d for d in dimensiones if "año" in d["name"].lower()), None)
-
     if dim_anios is None:
         print(f"  -> No se encontró dimensión de años para {nombre_indicador}")
         return pd.DataFrame()
 
     campo_anio = f"dim_{dim_anios['id']}"
     lookup_anios = {m["id"]: m["name"] for m in dim_anios["members"]}
+
+    # Detectamos si este indicador tiene dimensión de meses (granularidad mensual)
+    dim_meses = next((d for d in dimensiones if d["name"].lower() == "meses"), None)
+    campo_mes = f"dim_{dim_meses['id']}" if dim_meses else None
 
     registros = []
     for r in registros_crudos:
@@ -60,7 +62,7 @@ def obtener_indicador_cepal(indicator_id, nombre_indicador, paises_iso3=None):
 
         id_anio = r.get(campo_anio)
         if id_anio not in lookup_anios:
-            continue  # registro sin año reconocible, lo saltamos
+            continue
 
         try:
             anio = int(lookup_anios[id_anio])
@@ -68,8 +70,12 @@ def obtener_indicador_cepal(indicator_id, nombre_indicador, paises_iso3=None):
         except (ValueError, TypeError):
             continue
 
+        # Si hay dimensión de meses, ignoramos meses con valor 0 (huecos de datos)
+        if campo_mes is not None and valor == 0:
+            continue
+
         registros.append({
-            "pais": r["iso3"],  # CEPAL no nos da el nombre completo, solo el código
+            "pais": r["iso3"],
             "pais_iso3": r["iso3"],
             "anio": anio,
             "valor": valor,
@@ -77,6 +83,11 @@ def obtener_indicador_cepal(indicator_id, nombre_indicador, paises_iso3=None):
         })
 
     df = pd.DataFrame(registros)
+
+    # Si había dimensión de meses, promediamos los valores mensuales por año
+    if campo_mes is not None and len(df) > 0:
+        df = df.groupby(["pais", "pais_iso3", "anio", "indicador"], as_index=False)["valor"].mean()
+
     df = df.sort_values(["pais_iso3", "anio"]).reset_index(drop=True)
 
     os.makedirs(CACHE_DIR_CEPAL, exist_ok=True)
