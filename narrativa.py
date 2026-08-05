@@ -55,29 +55,30 @@ def generar_resumen_economico(panel, forzar_regenerar=False, cambios=None):
     if cambios:
         seccion_cambios = f"""
 
-CAMBIOS DESDE LA ÚLTIMA ACTUALIZACIÓN:
-{cambios}
+            CAMBIOS DESDE LA ÚLTIMA ACTUALIZACIÓN:
+            {cambios}
 
-Si hay cambios relevantes, mencionalos brevemente al final del resumen bajo un subtítulo "Novedades de esta semana"."""
+            Si hay cambios relevantes, mencionalos brevemente al final del resumen bajo un subtítulo "Novedades de esta semana"."""
 
     prompt = f"""Sos un analista económico especializado en América Latina. 
-Te paso datos de tres fuentes distintas (Banco Mundial, BID y CEPAL) para 6 países,
-cubriendo crecimiento del PIB, inflación, deuda pública, balance fiscal y tipo de cambio.
-Nota: algunos indicadores como inflación y tipo de cambio están duplicados entre fuentes
-(por ejemplo "inflacion" es del Banco Mundial, "inflacion_bid" es del BID, "inflacion_cepal" es de CEPAL)
-— esto es intencional, para que puedas contrastarlos.
+            Te paso datos de tres fuentes distintas (Banco Mundial, BID y CEPAL) para 6 países,
+            cubriendo crecimiento del PIB, inflación, deuda pública, balance fiscal y tipo de cambio.
+            Nota: algunos indicadores como inflación y tipo de cambio están duplicados entre fuentes
+            (por ejemplo "inflacion" es del Banco Mundial, "inflacion_bid" es del BID, "inflacion_cepal" es de CEPAL)
+            — esto es intencional, para que puedas contrastarlos.
 
-{seccion_indicadores}
+            {seccion_indicadores}
 
-Escribí un resumen ejecutivo de máximo 300 palabras que:
-1. Identifique el país con la trayectoria más volátil y por qué
-2. Señale qué país tuvo el desempeño más estable
-3. Mencione cualquier patrón regional compartido (ej: el shock de 2020)
-4. Comente brevemente el estado del balance/deuda fiscal de los países con datos disponibles
-5. Si las distintas fuentes de inflación o tipo de cambio difieren notablemente entre sí para algún país, mencionalo como nota de calidad de datos
-6. Use un tono profesional pero directo, como para un brief de inversores
-
-No repitas los números tal cual aparecen en la tabla — interpretalos.{seccion_cambios}"""
+            Escribí un resumen ejecutivo de máximo 300 palabras que:
+            1. Identifique el país con la trayectoria más volátil y por qué
+            2. Señale qué país tuvo el desempeño más estable
+            3. Mencione cualquier patrón regional compartido (ej: el shock de 2020)
+            4. Comente brevemente el estado del balance/deuda fiscal de los países con datos disponibles
+            5. Si las distintas fuentes de inflación o tipo de cambio difieren notablemente entre sí para algún país, mencionalo como nota de calidad de datos
+            6. Use un tono profesional pero directo, como para un brief de inversores
+            7. No uses un título con # al principio (ya hay un título en la página). Usá **negrita** para los subtítulos de cada sección, no headers con # ni ##.
+            8. Si algún país tiene datos muy limitados o ausentes en ciertos indicadores (por ejemplo, series muy cortas o vacías), no hagas afirmaciones fuertes sobre ese país en esas dimensiones — mencioná la limitación de datos en vez de inventar una conclusión.
+            No repitas los números tal cual aparecen en la tabla — interpretalos.{seccion_cambios}"""
 
     hash_prompt = hashlib.md5(prompt.encode()).hexdigest()[:10]
     archivo_cache = os.path.join(CACHE_DIR_NARRATIVA, f"resumen_{hash_prompt}.txt")

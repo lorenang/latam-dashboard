@@ -10,6 +10,11 @@ PAISES = {
     "COL": "Colombia",
     "MEX": "México",
     "PER": "Perú",
+    "URY": "Uruguay",
+    "PRY": "Paraguay",
+    "ECU": "Ecuador",
+    "BOL": "Bolivia",
+    "VEN": "Venezuela",
 }
 
 
